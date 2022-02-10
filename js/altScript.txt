@@ -1,0 +1,108 @@
+    // Updating the search_params dict (static)
+    function param_checker(){
+        // 1) Update the 'quantity' value
+        search_params['quantity'] = $('#quantity').val();
+
+        // 2) Update the 'color' value (REMEMBER: select the selected option inside the dict)
+        search_params['color'] = $('#color .option-button.selected').attr('id') // Note for CSS class: select the '.option-button' class with '.selected' class attached to it
+
+        // 3) Update the 'quality' value (REMEMBER: select the selected option inside the dict)
+        search_params['quality'] = $('#quality .option-button.selected').attr('id');
+
+        // 4) Update the 'style' value (Without change update, for now)
+        search_params['style'] = $('#style').val();
+        
+        console.log(search_params); // It should updates the dict statically when the page is loaded
+
+        // The detail box will be updated if the parameters are updated as well
+        result_detail();
+    }
+
+    // Check if the function works
+    //param_checker(); // It works!
+    
+    // Updating the search_params dict into the detail box (static)
+    function result_detail(){
+
+        // Every time if there is a change or when the page is loaded for the first time, the loading sign appears
+        $('.refresh-loader').show();
+        
+        // 1) Update the detail of tshirt style detail
+        let styleDetail = '#style option[value = "'+search_params['style']+'"]';
+        $('#result-style').html($(styleDetail).text());
+        
+        // 2) Update the detail of tshirt quality
+        let qualityDetail = '#'+search_params['quality'];
+        $('#result-quality').html($(qualityDetail).text());
+        
+        // 3) Update the detail of tshirt color
+        let colourDetail = '#'+search_params['color'];
+        $('#result-color').html($(colourDetail).text());
+        
+        // 4) Update the detail of tshirt quantity
+        $('#result-quantity').html(search_params['quantity']);
+        
+        // 5) Update the tshirt price
+        $('#total-price').html(price_counter());
+        
+        // 6) Update the product picture
+        let productImg = './img/'+products[search_params['color']][search_params['style']]['photo']
+        $('#photo-product').attr('src',productImg);
+        
+        // When the loading pic exists for 0.5 second, it disappears
+        window.setTimeout(function(){
+            $('.refresh-loader').hide();
+        },500);
+    }
+    
+    // Check if the functions work;
+    //param_checker(); // So far so good
+
+    function price_counter(){
+        let unitPrice = products[search_params['color']][search_params['style']]['unit_price'];
+        let unitPricing = search_params['quantity'] * unitPrice;
+        //console.log(unitPricing);
+        
+        if(search_params['quality'] == 'q190'){
+            unitPricing *= 1.12;
+        }
+        
+        if(search_params['quantity'] > 1000){
+            unitPricing *= 0.8;
+        }else if(search_params['quantity'] < 1000 && search_params['quantity'] > 500){
+            unit_pricing *= 0.88;
+        }else if(search_params['quantity'] < 500 && search_params['quantity'] > 100){
+            unit_pricing *= 0.95;
+        }
+        
+        return (' '+unitPricing.toLocaleString('en-US',{style:'currency', currency:'USD'}).slice(1,));
+    }
+
+    // Fire up the function for the first time before any change applied
+    param_checker();
+
+    // Fire up the function for each change in the filter
+    $('#quantity').change(function(){
+        search_params['quantity'] = $('#quantity').val();
+        param_checker();
+
+    })
+
+    $('.option-button').click(function(){
+        //console.log($(this).parent().attr('id'));
+        let parentId = $(this).parent().attr('id');
+        let dynamicId = '#'+parentId+' .option-button';
+        $(dynamicId).toggleClass('selected');
+        search_param_updater();
+    })
+
+    $('#style').change(function(){
+        search_params['style'] = $('#style').val();
+        //console.log(search_params['style']);
+        param_checker();
+    })
+});
+
+document.getElementById('quantity').onchange = function(){
+    console.log(document.getElementById('quantity').value);
+}
